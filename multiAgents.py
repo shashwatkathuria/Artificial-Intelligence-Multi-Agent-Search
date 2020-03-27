@@ -214,7 +214,52 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def alphaBetaMiniMax(totalAgents, agentIndex, currentGameState, depth, alpha, beta):
+            if totalAgents == agentIndex:
+                agentIndex = 0
+                depth += 1
+
+            if depth == self.depth:
+                return self.evaluationFunction(currentGameState)
+
+            possibleActions = currentGameState.getLegalActions(agentIndex)
+            if not possibleActions:
+                return self.evaluationFunction(currentGameState)
+
+            if agentIndex == 0:
+                maxPossibilities = []
+                bestValue = -9999999999
+                for action in possibleActions:
+                    successorGameState = currentGameState.generateSuccessor(agentIndex, action)
+                    miniValue = alphaBetaMiniMax(totalAgents, agentIndex + 1, successorGameState, depth, alpha, beta)
+                    maxPossibilities.append([miniValue, action])
+                    bestValue = max(bestValue, miniValue)
+                    if bestValue > beta:
+                        return bestValue
+                    alpha = max(alpha, bestValue)
+                if depth == 0:
+                    return max(maxPossibilities)[1]
+                else:
+                    return max(maxPossibilities)[0]
+
+            elif agentIndex > 0:
+
+                minPossibilities = []
+                bestValue = 9999999999
+                for action in possibleActions:
+                    successorGameState = currentGameState.generateSuccessor(agentIndex, action)
+                    nextValue = alphaBetaMiniMax(totalAgents, agentIndex + 1, successorGameState, depth, alpha, beta)
+                    minPossibilities.append(nextValue)
+                    bestValue = min(bestValue, nextValue)
+                    if bestValue < alpha:
+                        return bestValue
+                    beta = min(beta, bestValue)
+                return min(minPossibilities)
+
+        totalAgents = gameState.getNumAgents()
+        finalResult = alphaBetaMiniMax(totalAgents, 0, gameState, 0, -9999999999, 9999999999)
+
+        return finalResult
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
