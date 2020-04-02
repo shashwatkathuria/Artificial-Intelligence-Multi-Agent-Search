@@ -173,7 +173,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 return self.evaluationFunction(currentGameState)
 
             possibleActions = currentGameState.getLegalActions(agentIndex)
-            if not possibleActions or currentGameState.isWin() or currentGameState.isLose():
+            if not possibleActions:
                 return self.evaluationFunction(currentGameState)
 
             if agentIndex == 0:
