@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -74,7 +74,40 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        successorScore = successorGameState.getScore()
+        newFoodPositions = newFood.asList()
+
+        minDistFood = None
+
+        for foodPosition in newFoodPositions:
+            if minDistFood == None:
+                minDistFood = foodPosition
+            else:
+                presentManhattan = manhattanDistance(minDistFood, newPos)
+                newManhattan = manhattanDistance(foodPosition, newPos)
+                if newManhattan < presentManhattan:
+                    minDistFood = foodPosition
+
+        if minDistFood == None:
+            minDistFood = 0.2 * successorScore
+        else:
+            minDistFood = manhattanDistance(minDistFood, newPos)
+
+        minDistGhost = None
+        newGhostPositions = successorGameState.getGhostPositions()
+        for ghostPosition in newGhostPositions:
+            if minDistGhost == None:
+                minDistGhost = ghostPosition
+            else:
+                presentManhattan = manhattanDistance(minDistGhost, newPos)
+                newManhattan = manhattanDistance(ghostPosition, newPos)
+                if newManhattan < presentManhattan:
+                    minDistGhost = ghostPosition
+
+        minDistGhost = manhattanDistance(minDistGhost, newPos)
+        if minDistGhost <= 1:
+            minDistGhost = -10000
+        return successorScore + minDistGhost - minDistFood
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -170,4 +203,3 @@ def betterEvaluationFunction(currentGameState):
 
 # Abbreviation
 better = betterEvaluationFunction
-
