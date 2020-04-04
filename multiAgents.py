@@ -274,17 +274,94 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        def expectiMax(totalAgents, agentIndex, currentGameState, depth):
+            if totalAgents == agentIndex:
+                agentIndex = 0
+                depth += 1
+
+            if depth == self.depth:
+                return self.evaluationFunction(currentGameState)
+
+            possibleActions = currentGameState.getLegalActions(agentIndex)
+            if not possibleActions:
+                return self.evaluationFunction(currentGameState)
+
+            if agentIndex == 0:
+                maxPossibilities = []
+                for action in possibleActions:
+                    successorGameState = currentGameState.generateSuccessor(agentIndex, action)
+                    miniValue = expectiMax(totalAgents, agentIndex + 1, successorGameState, depth)
+                    maxPossibilities.append([miniValue, action])
+
+                if depth == 0:
+                    return max(maxPossibilities)[1]
+                else:
+                    return max(maxPossibilities)[0]
+
+            elif agentIndex > 0:
+
+                randomValue = 0
+                equalProbability = 1.0 / len(possibleActions)
+                for action in possibleActions:
+                    successorGameState = currentGameState.generateSuccessor(agentIndex, action)
+                    nextValue = expectiMax(totalAgents, agentIndex + 1, successorGameState, depth)
+                    randomValue += equalProbability * nextValue
+
+                return randomValue
+
+        totalAgents = gameState.getNumAgents()
+        finalResult = expectiMax(totalAgents, 0, gameState, 0)
+
+        return finalResult
 
 def betterEvaluationFunction(currentGameState):
     """
       Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
       evaluation function (question 5).
 
-      DESCRIPTION: <write something here so we know what you did>
+      DESCRIPTION: Attracts pacman toward foods, pellets, more scared time and
+                   keeps track of distance from closest ghost to avoid.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # Useful information you can extract from a GameState (pacman.py)
+    currentPos = currentGameState.getPacmanPosition()
+    currentFood = currentGameState.getFood()
+    currentGhostStates = currentGameState.getGhostStates()
+    currentScaredTimes = [ghostState.scaredTimer for ghostState in currentGhostStates]
+    currentFoodPositions = currentFood.asList()
+    currentPellets = currentGameState.getCapsules()
+    currentScore = currentGameState.getScore()
+
+    extraScore = 0
+
+    for pelletPosition in currentPellets:
+        pelletManhattan = manhattanDistance(currentPos, pelletPosition)
+        extraScore -= pelletManhattan
+
+    for scaredTime in currentScaredTimes:
+        extraScore += scaredTime
+
+    for foodPosition in currentFoodPositions:
+        foodManhattan = manhattanDistance(foodPosition, currentPos)
+        extraScore -= foodManhattan
+
+    minDistGhost = None
+    currentGhostPositions = currentGameState.getGhostPositions()
+    for ghostPosition in currentGhostPositions:
+        if minDistGhost == None:
+            minDistGhost = ghostPosition
+        else:
+            presentManhattan = manhattanDistance(minDistGhost, currentPos)
+            newManhattan = manhattanDistance(ghostPosition, currentPos)
+            if newManhattan < presentManhattan:
+                minDistGhost = ghostPosition
+
+    minDistGhost = manhattanDistance(minDistGhost, currentPos)
+    if minDistGhost <= 1:
+        extraScore -= 10000
+
+    return currentScore + extraScore
 
 # Abbreviation
 better = betterEvaluationFunction
