@@ -74,39 +74,68 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
+
+        # Getting information required
         successorScore = successorGameState.getScore()
         newFoodPositions = newFood.asList()
 
+        # Variable for storing distance to closest food
         minDistFood = None
 
+        # Looping over all food positions
         for foodPosition in newFoodPositions:
+            # If the minimum distance food is not assigned yet
             if minDistFood == None:
+                # Storing coordinates
                 minDistFood = foodPosition
+            # Otherwise if minimum distance is assigned
             else:
+                # Getting present and new manhattan distances
                 presentManhattan = manhattanDistance(minDistFood, newPos)
                 newManhattan = manhattanDistance(foodPosition, newPos)
+                # Comparing and storing if the new distance is closer than present
                 if newManhattan < presentManhattan:
                     minDistFood = foodPosition
 
+        # If food position is there
         if minDistFood == None:
+            # Assigning a high constant for negative effect
             minDistFood = 0.2 * successorScore
+        # Otherwise storing the actual distance value calculated from the coordinates
+        # of minimum distance food
         else:
             minDistFood = manhattanDistance(minDistFood, newPos)
 
+        # Variable for storing distance to closest ghost
         minDistGhost = None
+        # Getting ghost positions
         newGhostPositions = successorGameState.getGhostPositions()
+
+        # Looping over all ghost positions
         for ghostPosition in newGhostPositions:
+            # If the minimum distance ghost is not assigned yet
             if minDistGhost == None:
+                # Storing coordinates
                 minDistGhost = ghostPosition
+            # Otherwise if minimum distance is assigned
             else:
+                # Getting present and new manhattan distances
                 presentManhattan = manhattanDistance(minDistGhost, newPos)
                 newManhattan = manhattanDistance(ghostPosition, newPos)
+                # Comparing and storing if the new distance is closer than present
                 if newManhattan < presentManhattan:
                     minDistGhost = ghostPosition
 
+        # Storing the actual distance value calculated from the coordinates
+        # of minimum distance ghost
         minDistGhost = manhattanDistance(minDistGhost, newPos)
+
+        # Applying a very negative effect if ghost comes very close
+        # to avoid the ghost
         if minDistGhost <= 1:
             minDistGhost = -10000
+
+        # Returning final score
         return successorScore + minDistGhost - minDistFood
 
 def scoreEvaluationFunction(currentGameState):
@@ -324,7 +353,6 @@ def betterEvaluationFunction(currentGameState):
                    keeps track of distance from closest ghost to avoid.
     """
     "*** YOUR CODE HERE ***"
-    # Useful information you can extract from a GameState (pacman.py)
     currentPos = currentGameState.getPacmanPosition()
     currentFood = currentGameState.getFood()
     currentGhostStates = currentGameState.getGhostStates()
