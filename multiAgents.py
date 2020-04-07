@@ -192,44 +192,67 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
 
-
+        # Helper recursive function for Minimax Algorithm
         def miniMax(totalAgents, agentIndex, currentGameState, depth):
+            # Agent index to move in a cycle
             if totalAgents == agentIndex:
                 agentIndex = 0
+                # Increment depth after each agent moves once
                 depth += 1
 
+            # If the depth required is reached
             if depth == self.depth:
+                # Returning value
                 return self.evaluationFunction(currentGameState)
 
+            # Getting possible actions for current agent
             possibleActions = currentGameState.getLegalActions(agentIndex)
+            # If possible actions is an empty list
             if not possibleActions:
+                # Returning value
                 return self.evaluationFunction(currentGameState)
 
+            # For Pacman
             if agentIndex == 0:
+                # List to store values, maximum to be extracted at the end
                 maxPossibilities = []
+                # Looping over each action
                 for action in possibleActions:
+                    # Getting successor state of current action
                     successorGameState = currentGameState.generateSuccessor(agentIndex, action)
+                    # Getting the value of mini (next agent value) through recursion, passing on to next agent
                     miniValue = miniMax(totalAgents, agentIndex + 1, successorGameState, depth)
+                    # Appending the value and action
                     maxPossibilities.append([miniValue, action])
 
+                # Returning the action leading to maximum value back to the caller
                 if depth == 0:
                     return max(maxPossibilities)[1]
+                # Returning the maximum value if depth still remaining to solve
                 else:
                     return max(maxPossibilities)[0]
 
+            # For Ghosts
             elif agentIndex > 0:
-
+                # List to store values, minimum to be extracted at the end
                 minPossibilities = []
+                # Looping over each action
                 for action in possibleActions:
+                    # Getting successor state of current action
                     successorGameState = currentGameState.generateSuccessor(agentIndex, action)
+                    # Getting the value of mini or max (next agent value) through recursion, passing on to next agent
                     nextValue = miniMax(totalAgents, agentIndex + 1, successorGameState, depth)
+                    # Appending the value
                     minPossibilities.append(nextValue)
 
+                # Returning the minimum value
                 return min(minPossibilities)
 
+        # Getting the total number of agents
         totalAgents = gameState.getNumAgents()
+        # Calling function, storing final result
         finalResult = miniMax(totalAgents, 0, gameState, 0)
-
+        # Returning final result
         return finalResult
 
 
