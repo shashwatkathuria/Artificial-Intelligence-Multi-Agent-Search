@@ -214,7 +214,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
             # For Pacman
             if agentIndex == 0:
-                
+
                 # List to store values, maximum to be extracted at the end
                 maxPossibilities = []
 
@@ -375,44 +375,77 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
 
+        # Helper recursive function for Expectimax Algorithm
         def expectiMax(totalAgents, agentIndex, currentGameState, depth):
+            # Agent index to move in a cycle
             if totalAgents == agentIndex:
                 agentIndex = 0
+                # Increment depth after each agent moves once
                 depth += 1
 
+            # If the depth required is reached
             if depth == self.depth:
+                # Returning value
                 return self.evaluationFunction(currentGameState)
 
+            # Getting possible actions for current agent
             possibleActions = currentGameState.getLegalActions(agentIndex)
+            # If possible actions is an empty list
             if not possibleActions:
+                # Returning value
                 return self.evaluationFunction(currentGameState)
 
+            # For Pacman
             if agentIndex == 0:
+
+                # List to store values, maximum to be extracted at the end
                 maxPossibilities = []
+
+                # Looping over each action
                 for action in possibleActions:
+                    # Getting successor state of current action
                     successorGameState = currentGameState.generateSuccessor(agentIndex, action)
+                    # Getting the value of expectation (next agent value, uniformly distributed at random)
+                    # through recursion, passing on to next agent
                     miniValue = expectiMax(totalAgents, agentIndex + 1, successorGameState, depth)
+                    # Appending the value and action
                     maxPossibilities.append([miniValue, action])
 
+                # Returning the action leading to maximum value back to the caller
                 if depth == 0:
                     return max(maxPossibilities)[1]
+                # Returning the maximum value if depth still remaining to solve
                 else:
                     return max(maxPossibilities)[0]
 
+            # For Ghosts
             elif agentIndex > 0:
 
+                # Variable to store the random value (expectation)
                 randomValue = 0
+                # Uniform probability across all actions
                 equalProbability = 1.0 / len(possibleActions)
+
+                # Looping over each action
                 for action in possibleActions:
+                    # Getting successor state of current action
                     successorGameState = currentGameState.generateSuccessor(agentIndex, action)
+                    # Getting the value of expectation or max (next agent value, uniformly distributed at random)
+                    # through recursion, passing on to next agent
                     nextValue = expectiMax(totalAgents, agentIndex + 1, successorGameState, depth)
+
+                    # Uniform distribution expectation calculation, incrementing
                     randomValue += equalProbability * nextValue
 
+                # Returning expectation
                 return randomValue
 
+        # Getting the total number of agents
         totalAgents = gameState.getNumAgents()
+        # Calling function, storing final result
         finalResult = expectiMax(totalAgents, 0, gameState, 0)
 
+        # Returning final result
         return finalResult
 
 def betterEvaluationFunction(currentGameState):
