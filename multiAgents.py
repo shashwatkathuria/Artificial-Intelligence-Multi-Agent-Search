@@ -457,6 +457,8 @@ def betterEvaluationFunction(currentGameState):
                    keeps track of distance from closest ghost to avoid.
     """
     "*** YOUR CODE HERE ***"
+
+    # Getting information about the state as required
     currentPos = currentGameState.getPacmanPosition()
     currentFood = currentGameState.getFood()
     currentGhostStates = currentGameState.getGhostStates()
@@ -464,35 +466,59 @@ def betterEvaluationFunction(currentGameState):
     currentFoodPositions = currentFood.asList()
     currentPellets = currentGameState.getCapsules()
     currentScore = currentGameState.getScore()
+    currentGhostPositions = currentGameState.getGhostPositions()
 
+    # Variable to keep track of the extra score
     extraScore = 0
 
+    # Looping over each pellet position, scoring distance to each pellet
     for pelletPosition in currentPellets:
         pelletManhattan = manhattanDistance(currentPos, pelletPosition)
+        # Attracts toward pellet
+        # Affects negatively if pellet is away and vice versa
         extraScore -= pelletManhattan
 
+    # Looping over each scared time
     for scaredTime in currentScaredTimes:
+        # Affects positively if there is some scred time in the ghost
         extraScore += scaredTime
 
+    # Looping over each food position, scoring distance to each food
     for foodPosition in currentFoodPositions:
         foodManhattan = manhattanDistance(foodPosition, currentPos)
+        # Attracts toward food
+        # Affects negatively if food is away and vice versa
         extraScore -= foodManhattan
 
+    # Variable for storing distance to closest ghost
     minDistGhost = None
-    currentGhostPositions = currentGameState.getGhostPositions()
+
+    # Looping over all ghost positions
     for ghostPosition in currentGhostPositions:
+        # If the minimum distance ghost is not assigned yet
         if minDistGhost == None:
+            # Storing coordinates
             minDistGhost = ghostPosition
+        # Otherwise if minimum distance is assigned
         else:
+            # Getting present and new manhattan distances
             presentManhattan = manhattanDistance(minDistGhost, currentPos)
             newManhattan = manhattanDistance(ghostPosition, currentPos)
+            # Comparing and storing if the new distance is closer than present
             if newManhattan < presentManhattan:
                 minDistGhost = ghostPosition
 
+    # Storing the actual distance value calculated from the coordinates
+    # of minimum distance ghost
     minDistGhost = manhattanDistance(minDistGhost, currentPos)
+
+    # Avoids ghost from coming very close
+    # Applying a very negative effect if ghost comes very close
+    # to avoid the ghost
     if minDistGhost <= 1:
         extraScore -= 10000
 
+    # Returning final calculated score
     return currentScore + extraScore
 
 # Abbreviation
